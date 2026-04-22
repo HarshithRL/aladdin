@@ -1,0 +1,70 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar_styles.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+
+
+<div class="sidebar collapsed" id="sidebar">
+      <div class="sidebar-controls">
+            <div class="logo">
+                  <div class="logo-wrapper" id="sidebar-logo-wrapper"
+                        style="display: flex; align-items: center; color: #FFD100; gap: 8px;">
+                        <span id="sidebar-brand-text"
+                              style="font-weight: 700; font-size: 20px; color: #FFD100; transition: opacity 0.3s ease; display: none; opacity: 0;">Diggibyte</span>
+                  </div>
+            </div>
+            <div class="ms-header-left">
+                  <div class="project-name">
+                        <a href="/" class="home-button">
+                              <div class="project-title"></div>
+                        </a>
+                  </div>
+            </div>
+            <div class="collapse-sidebar" id="collapse-sidebar" onclick="toggleSidebarLock()">
+                  <img src="/static/images/lucide_icons/panel-right-open.svg" class="collapse-icon icon-svg" />
+            </div>
+
+
+            <!-- New Chat Button -->
+            <button class="new-session-button">
+                  <img src="/static/images/lucide_icons/plus.svg" class="new-session-icon icon-svg" />
+                  <div class="new-session-text">Start New Chat</div>
+            </button>
+
+            <div class="sidebar-top-part">
+                  <div class="create-group-form hidden" id="create-group-form">
+                        <h4>Create New Group</h4>
+                        <input type="text" id="new-group-name" placeholder="Group Name" />
+                        <button onclick="createNewGroup()">Create</button>
+                        <button onclick="hideCreateGroupForm()">Cancel</button>
+                  </div>
+            </div>
+      </div>
+      <div class="sidebar-recent-part">
+            <div class="sidebar-heading projects-heading">
+                  <div class="sidebar-heading-label">
+                        Projects
+                  </div>
+                  <div class="sidebar-heading-button create-new-project" id="createNewProjectButton"
+                        data-tooltip="Create new project" onmouseenter="showTooltip(event)"
+                        onmouseleave="hideTooltip()">
+                        <img src="/static/images/lucide_icons/plus.svg" class="sidebar-heading-icon icon-svg" />
+                  </div>
+            </div>
+            <div class="projects-list" id="project-list">
+                  <div class="loader"></div>
+            </div>
+            <div class="sidebar-heading today-heading">Today</div>
+            <div class="session-list" id="session-list">
+                  <div class="loader"></div>
+            </div>
+      </div>
+      <div class="sidebar-bottom-part">
+            <div class="info-button" onclick="showAppInfo()">
+                  <img src="/static/images/lucide_icons/info.svg" class="sidebar-bottom-chats-icon icon-svg" />
+                  <div class="sidebar-bottom-chats-text">Info</div>
+            </div>
+      </div>
+</div>
+
+
+<script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cards.js') }}"></script>

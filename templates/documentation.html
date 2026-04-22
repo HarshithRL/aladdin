@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/markdown_styles.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/documentation_styles.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>Relay Documentation</title>
+    <link rel="icon" type="image/png" href="static/images/fav.png">
+</head>
+<body>
+<div class="container">
+    <header>
+        <a href="/" class="back-button">Try Relay</a>
+    </header>
+
+    <main class="main-content">
+    <aside class="file-list">
+        <ul id="doc-list">
+            <!-- Dynamically populated -->
+        </ul>
+    </aside>
+
+    <section class="document-viewer">
+        <div id="markdown-container" class="message">
+            <p>Select a document to view its content.</p>
+        </div>
+        <!-- TOC Panel -->
+        <aside class="table-of-contents">
+            <h2>Table of Contents</h2>
+            <ul id="toc-list">
+                <!-- Dynamically populated -->
+            </ul>
+        </aside>
+    </section>
+
+</main>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/documentation.js') }}"></script>
+</body>
+</html>

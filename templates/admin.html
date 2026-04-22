@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+      <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Relay</title>
+            <link rel="icon" type="image/png" href="/static/images/fav.png" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_styles.css') }}" />
+      </head>
+      <body>
+            <div class="admin-home-button">
+                <a href="/">
+                    <img src="/static/images/lucide_icons/house.svg" class="project-title-icon icon-svg" />
+                </a>
+            </div>
+            <div class="body-top">{% include 'header.html' %}</div>
+            <div class="body-bottom">
+                  <div class="container">
+                        <div class="header">
+                              <h1>Email Manager</h1>
+                              <p>Manage admin and user email lists</p>
+                        </div>
+
+                        <div class="sections-container">
+                              <!-- Admin Section -->
+                              <div class="email-section admin-section">
+                                    <div class="section-header">
+                                          <div class="section-title">
+                                                <div class="section-icon admin-icon">
+                                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L9 7V9C9 10.1 9.9 11 11 11V16L7.5 15.5C7.09 15.45 6.73 15.17 6.59 14.78L6 13H2V15H5L6.5 18.5C6.84 19.28 7.59 19.78 8.42 19.83L12 20L15.58 19.83C16.41 19.78 17.16 19.28 17.5 18.5L19 15H22V13H18L17.41 14.78C17.27 15.17 16.91 15.45 16.5 15.5L13 16V11C14.1 11 15 10.1 15 9Z" />
+                                                      </svg>
+                                                </div>
+                                                <div>
+                                                      <h2>Admin</h2>
+                                                      <div class="email-count" id="adminCount">0 emails</div>
+                                                </div>
+                                          </div>
+                                          <button class="add-email-btn" onclick="openAddModal('admin')" title="Add admin email">+</button>
+                                    </div>
+                                    <div id="adminEmailList">
+                                          <div class="empty-state">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                      <polyline points="22,6 12,13 2,6"></polyline>
+                                                </svg>
+                                                <h3>No admin emails</h3>
+                                                <p>Click the + button to add admins</p>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <!-- User Section -->
+                              <div class="email-section user-section">
+                                    <div class="section-header">
+                                          <div class="section-title">
+                                                <div class="section-icon user-icon">
+                                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                            <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" />
+                                                      </svg>
+                                                </div>
+                                                <div>
+                                                      <h2>User</h2>
+                                                      <div class="email-count" id="userCount">0 emails</div>
+                                                </div>
+                                          </div>
+                                          <button class="add-email-btn" onclick="openAddModal('user')" title="Add user email">+</button>
+                                    </div>
+                                    <div id="userEmailList">
+                                          <div class="empty-state">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                      <polyline points="22,6 12,13 2,6"></polyline>
+                                                </svg>
+                                                <h3>No user emails</h3>
+                                                <p>Click the + button to add users</p>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+
+                  <!-- Add Email Modal -->
+                  <div class="modal" id="addEmailModal">
+                        <div class="modal-content">
+                              <div class="modal-header">
+                                    <h3 id="modalTitle">Add Email</h3>
+                              </div>
+                              <input type="email" id="modalEmailInput" class="modal-input" placeholder="Enter email address..." required />
+                              <div class="modal-actions">
+                                    <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+                                    <button class="btn btn-primary" onclick="addEmailFromModal()">Add Email</button>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <script>
+                  let allUsers = [];
+                  let editingSection = null;
+                  let editingIndex = -1;
+                  let currentModalSection = null;
+
+                  // API functions
+                  async function fetchAllowedUsers() {
+                        try {
+                              const response = await fetch("/admin/get_allowed_users");
+                              const data = await response.json();
+
+                              if (data.success) {
+                                    allUsers = data.users || [];
+                                    updateEmailLists();
+                              } else {
+                                    console.error("Failed to fetch users:", data.error);
+                                    alert("Failed to load users");
+                              }
+                        } catch (error) {
+                              console.error("Error fetching users:", error);
+                              alert("Error loading users");
+                        }
+                  }
+
+                  async function addAllowedUser(email, section) {
+                        try {
+                              const response = await fetch("/admin/add_allowed_user", {
+                                    method: "POST",
+                                    headers: {
+                                          "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                          email: email,
+                                          is_admin: section === "admin",
+                                          is_user: section === "user",
+                                    }),
+                              });
+
+                              const data = await response.json();
+
+                              // Note: Your backend returns 400 for success, so we check for success field
+                              if (data.success || response.status === 400) {
+                                    console.log(`Email added to ${section}:`, email);
+                                    await fetchAllowedUsers(); // Refresh the list
+                              } else {
+                                    console.error("Failed to add user:", data.error);
+                                    alert("Failed to add user: " + (data.error || "Unknown error"));
+                              }
+                        } catch (error) {
+                              console.error("Error adding user:", error);
+                              alert("Error adding user");
+                        }
+                  }
+
+                  async function updateAllowedUserEmail(oldEmail, newEmail) {
+                        try {
+                              const response = await fetch("/admin/update_allowed_user_email", {
+                                    method: "POST",
+                                    headers: {
+                                          "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                          old_email: oldEmail,
+                                          new_email: newEmail,
+                                    }),
+                              });
+
+                              const data = await response.json();
+
+                              // Note: Your backend returns 400 for success, so we check for success field
+                              if (data.success || response.status === 400) {
+                                    console.log("Email updated:", oldEmail, "→", newEmail);
+                                    await fetchAllowedUsers(); // Refresh the list
+                              } else {
+                                    console.error("Failed to update user:", data.error);
+                                    alert("Failed to update user: " + (data.error || "Unknown error"));
+                              }
+                        } catch (error) {
+                              console.error("Error updating user:", error);
+                              alert("Error updating user");
+                        }
+                  }
+
+                  async function removeAllowedUser(email) {
+                        try {
+                              const response = await fetch("/admin/remove_allowed_user", {
+                                    method: "POST",
+                                    headers: {
+                                          "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                          email: email,
+                                    }),
+                              });
+
+                              const data = await response.json();
+
+                              // Note: Your backend returns 400 for success, so we check for success field
+                              if (data.success || response.status === 400) {
+                                    console.log("Email removed:", email);
+                                    await fetchAllowedUsers(); // Refresh the list
+                              } else {
+                                    console.error("Failed to remove user:", data.error);
+                                    alert("Failed to remove user: " + (data.error || "Unknown error"));
+                              }
+                        } catch (error) {
+                              console.error("Error removing user:", error);
+                              alert("Error removing user");
+                        }
+                  }
+
+                  // Helper functions
+                  function getEmailInitial(email) {
+                        return email.charAt(0).toUpperCase();
+                  }
+
+                  function isValidEmail(email) {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        return emailRegex.test(email);
+                  }
+
+                  function getAdminEmails() {
+                        return allUsers.filter((user) => user.is_admin).map((user) => user.email);
+                  }
+
+                  function getUserEmails() {
+                        return allUsers.filter((user) => user.is_user && !user.is_admin).map((user) => user.email);
+                  }
+
+                  function updateEmailLists() {
+                        updateEmailCount("admin");
+                        updateEmailCount("user");
+                        renderEmails("admin");
+                        renderEmails("user");
+                  }
+
+                  function updateEmailCount(section) {
+                        const emails = section === "admin" ? getAdminEmails() : getUserEmails();
+                        const count = emails.length;
+                        const countElement = document.getElementById(`${section}Count`);
+                        countElement.textContent = count === 1 ? "1 email" : `${count} emails`;
+                  }
+
+                  function renderEmails(section) {
+                        const emails = section === "admin" ? getAdminEmails() : getUserEmails();
+                        const container = document.getElementById(`${section}EmailList`);
+
+                        if (emails.length === 0) {
+                              const sectionName = section === "admin" ? "admin" : "user";
+                              container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <h3>No ${sectionName} emails</h3>
+                        <p>Click the + button to add ${sectionName}s</p>
+                    </div>
+                `;
+                              return;
+                        }
+
+                        container.innerHTML = emails
+                              .map(
+                                    (email, index) => `
+                <div class="email-item">
+                    <div class="email-content">
+                        <div class="email-avatar">${getEmailInitial(email)}</div>
+                        ${
+                              editingSection === section && editingIndex === index
+                                    ? `
+                            <div class="edit-mode">
+                                <input 
+                                    type="email" 
+                                    class="edit-input" 
+                                    value="${email}"
+                                    id="editInput${section}${index}"
+                                    onkeypress="handleEditKeypress(event, '${section}', ${index})"
+                                >
+                            </div>
+                        `
+                                    : `
+                            <div class="email-text">${email}</div>
+                        `
+                        }
+                    </div>
+                    <div class="email-actions">
+                        ${
+                              editingSection === section && editingIndex === index
+                                    ? `
+                            <button class="btn btn-primary" onclick="saveEdit('${section}', ${index})">Save</button>
+                            <button class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+                        `
+                                    : `
+                            <button class="btn btn-secondary" onclick="startEdit('${section}', ${index})">Edit</button>
+                            <button class="btn btn-danger" onclick="removeEmail('${section}', ${index})">Remove</button>
+                        `
+                        }
+                    </div>
+                </div>
+            `
+                              )
+                              .join("");
+                  }
+
+                  function openAddModal(section) {
+                        currentModalSection = section;
+                        const modal = document.getElementById("addEmailModal");
+                        const title = document.getElementById("modalTitle");
+                        const input = document.getElementById("modalEmailInput");
+
+                        title.textContent = `Add ${section === "admin" ? "Admin" : "User"} Email`;
+                        input.value = "";
+                        modal.classList.add("active");
+                        input.focus();
+                  }
+
+                  function closeAddModal() {
+                        const modal = document.getElementById("addEmailModal");
+                        modal.classList.remove("active");
+                        currentModalSection = null;
+                  }
+
+                  async function addEmailFromModal() {
+                        const input = document.getElementById("modalEmailInput");
+                        const email = input.value.trim();
+
+                        if (!email) {
+                              alert("Please enter an email address");
+                              return;
+                        }
+
+                        if (!isValidEmail(email)) {
+                              alert("Please enter a valid email address");
+                              return;
+                        }
+
+                        const allEmails = allUsers.map((user) => user.email);
+                        if (allEmails.includes(email)) {
+                              alert("This email is already in the list");
+                              return;
+                        }
+
+                        await addAllowedUser(email, currentModalSection);
+                        closeAddModal();
+                  }
+
+                  async function removeEmail(section, index) {
+                        const emails = section === "admin" ? getAdminEmails() : getUserEmails();
+                        const email = emails[index];
+
+                        if (confirm(`Are you sure you want to remove ${email}?`)) {
+                              await removeAllowedUser(email);
+                        }
+                  }
+
+                  function startEdit(section, index) {
+                        editingSection = section;
+                        editingIndex = index;
+                        renderEmails(section);
+
+                        // Focus the edit input
+                        setTimeout(() => {
+                              const editInput = document.getElementById(`editInput${section}${index}`);
+                              if (editInput) {
+                                    editInput.focus();
+                                    editInput.select();
+                              }
+                        }, 0);
+                  }
+
+                  async function saveEdit(section, index) {
+                        const editInput = document.getElementById(`editInput${section}${index}`);
+                        const newEmail = editInput.value.trim();
+                        const emails = section === "admin" ? getAdminEmails() : getUserEmails();
+                        const oldEmail = emails[index];
+
+                        if (!newEmail) {
+                              alert("Please enter an email address");
+                              return;
+                        }
+
+                        if (!isValidEmail(newEmail)) {
+                              alert("Please enter a valid email address");
+                              return;
+                        }
+
+                        if (newEmail !== oldEmail) {
+                              const allEmails = allUsers.map((user) => user.email);
+                              if (allEmails.includes(newEmail)) {
+                                    alert("This email is already in the list");
+                                    return;
+                              }
+
+                              await updateAllowedUserEmail(oldEmail, newEmail);
+                        }
+
+                        editingSection = null;
+                        editingIndex = -1;
+                  }
+
+                  function cancelEdit() {
+                        editingSection = null;
+                        editingIndex = -1;
+                        renderEmails("admin");
+                        renderEmails("user");
+                  }
+
+                  function handleEditKeypress(event, section, index) {
+                        if (event.key === "Enter") {
+                              saveEdit(section, index);
+                        } else if (event.key === "Escape") {
+                              cancelEdit();
+                        }
+                  }
+
+                  // Modal event listeners
+                  document.getElementById("modalEmailInput").addEventListener("keypress", function (event) {
+                        if (event.key === "Enter") {
+                              addEmailFromModal();
+                        } else if (event.key === "Escape") {
+                              closeAddModal();
+                        }
+                  });
+
+                  // Close modal when clicking outside
+                  document.getElementById("addEmailModal").addEventListener("click", function (event) {
+                        if (event.target === this) {
+                              closeAddModal();
+                        }
+                  });
+
+                  // Initialize the app
+                  document.addEventListener("DOMContentLoaded", function () {
+                        fetchAllowedUsers();
+                  });
+            </script>
+      </body>
+</html>

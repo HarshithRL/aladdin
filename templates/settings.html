@@ -1,0 +1,116 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}" />
+<div class="popup-card-container settingsPopup" id="settings-card" style="display: none">
+      <div class="card card-content settings-card">
+            <div class="popup-header">
+                  <h2>Settings</h2>
+                    <button class="close-button" id="closePopup"><img class="settings-icon icon-svg" id="settingsIcon" src="{{ url_for('static', filename='images/lucide_icons/x.svg') }}" /></button>
+            </div>
+            <div class="popup-content">
+                  <div class="tabs">
+                        <div class="tab active" data-tab="general">
+                              <span class="tab-icon">
+                                <img class="settings-icon icon-svg" id="settingsIcon" src="{{ url_for('static', filename='images/settings.svg') }}" />
+                              </span>
+                              General
+                        </div>
+                        <div class="tab" data-tab="memory">
+                              <span class="tab-icon">
+                                <img class="memory-icon icon-svg" id="memoryIcon" src="{{ url_for('static', filename='images/user-pen.svg') }}" />
+                              </span>
+                              Personalization
+                        </div>
+                  </div>
+                  <div class="tab-content">
+                        <div class="content-panel active" id="general-panel">
+                              <div class="setting-group">
+                                    <div class="setting-row">
+                                          <div class="setting-label">Theme</div>
+                                          <select id="themeSelect" onchange="changeTheme(this.value)">
+                                                <option value="light">Light</option>
+                                                <option value="dark">Dark</option>
+                                          </select>
+
+                                          <script>
+                                                // Function to change theme and store it in session storage
+                                                function changeTheme(theme) {
+                                                      document.documentElement.setAttribute('data-theme', theme);
+                                                }
+                                          </script>
+                                    </div>
+                                    <div class="setting-row">
+                                          <div class="setting-label">Use Emojis in AI responses</div>
+                                          <label class="switch">
+                                                <input type="checkbox" id="toggleEmojis">
+                                                <span class="slider round"></span>
+                                          </label>
+                                    </div>
+                                    <div class="setting-row">
+                                          <div class="setting-label">Always give acknowledgement and a follow up</div>
+                                          <label class="switch">
+                                                <input type="checkbox" id="toggleAcknowledge">
+                                                <span class="slider round"></span>
+                                          </label>
+                                    </div>
+                                    <div class="setting-row">
+                                          <button class="button danger-button" onclick="deleteAllSessions()">
+                                                Delete All Sessions
+                                          </button>
+                                    </div>
+                              </div>
+                        </div>
+                        <div class="content-panel" id="memory-panel">
+                              <div class="memory-warning" id="memoryWarning"><strong>Memory limit reached!</strong> You have 30 memories saved. Please delete some memories to add new ones.</div>
+
+                              <div class="add-memory">
+                                    <h3>Add New Memory</h3>
+                                    <textarea class="add-memory-input" id="newMemoryInput" placeholder="Enter a new memory..."></textarea>
+                                    <button class="button primary-button" id="addMemoryButton">Add Memory</button>
+                              </div>
+
+                              <div class="memories-list" id="memoriesList">
+                                    <!-- Memory items will be added here dynamically -->
+                              </div>
+
+                              <div class="delete-all-button">
+                                    <button class="button danger-button" id="deleteAllMemoriesButton">Delete All Memories</button>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+      </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const settingsCard = document.getElementById("settings-card");
+    const settingsContent = document.querySelector(".settings-card");
+    const closeButton = document.getElementById("closePopup");
+    
+    // Function to hide the settings card
+    function hideSettingsCard() {
+        settingsCard.style.display = "none";
+    }
+    
+    // Close when the ✕ button is clicked
+    closeButton.addEventListener("click", () => {
+        hideSettingsCard();
+    });
+    
+    // Close when clicking outside the card content
+    document.addEventListener("click", (e) => {
+        if (
+            settingsCard.style.display !== "none" &&
+            !settingsContent.contains(e.target) &&
+            !e.target.closest('.settings-button') // Don't close if clicking the settings button
+        ) {
+            hideSettingsCard();
+        }
+    });
+    
+    // Function to show settings card
+    window.showSettingsCard = () => {
+        settingsCard.style.display = "flex"; // Changed to flex for consistency
+    };
+});
+</script>

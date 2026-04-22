@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{theme}}">
+      <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Etex Mate</title>
+            <link rel="icon" type="image/png" href="/static/images/fav.png" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/model_dropdown_styles.css') }}" />
+            <link rel="stylesheet" href="/static/css/mom_styles.css" />
+            <link rel="stylesheet" href="/static/css/slidesshow_styles.css" />
+            <link rel="stylesheet" href="/static/css/markdown_styles.css" />
+      </head>
+      <body data-session-id="{{ session_id | default('') }}">
+            <div class="body-top">
+                  <!-- Header Section -->
+                  {% include 'header.html' %}
+            </div>
+            <div class="body-bottom">
+                  {% include 'sidebar.html' %}
+                  <div class="bottom-part" id="bottomPart">
+                        <div class="main-content">
+                              <div class="model-select" onclick="toggleModelDropdown()">
+                                    <span class="model-name" data-actual-model="gpt-4o"
+                                          >OpenAI
+                                          <div class="model-name-second-line">GPT 4o</div></span
+                                    >
+                                    <img src="{{ url_for('static', filename='images/dropdown-arrow.svg') }}" class="dropdown-arrow icon-svg" alt="Dropdown Arrow" />
+                              </div>
+                              <!-- The dropdown container -->
+                              <div class="model-dropdown">
+                                    <div class="model-option" data-tooltip-text="{{ model_details['gpt-4o'] }}" onclick="selectModel('gpt-4o')">
+                                          OpenAI
+                                          <div class="model-name-second-line">GPT 4o</div>
+                                    </div>
+                                    <div class="model-option" data-tooltip-text="{{ model_details['gpt-4.1'] }}" onclick="selectModel('gpt-4.1')">
+                                          OpenAI
+                                          <div class="model-name-second-line">GPT 4.1</div>
+                                    </div>
+                                    <div class="model-option" data-tooltip-text="{{ model_details['o1'] }}" onclick="selectModel('o1')">
+                                          OpenAI
+                                          <div class="model-name-second-line">GPT o1</div>
+                                    </div>
+                                    <div class="model-option" data-tooltip-text="{{ model_details['gpt-o3-mini'] }}" onclick="selectModel('o3-mini')">
+                                          OpenAI
+                                          <div class="model-name-second-line">GPT o3-mini</div>
+                                    </div>
+                              </div>
+
+                              <!-- Separate tooltip element outside the dropdown -->
+                              <div id="llm-model-tooltip"></div>
+
+                              <div class="link-input-container">
+                                    <div class="card input-container">
+                                          <h2>Upload Your Content</h2>
+
+                                          <!-- SharePoint Link Input -->
+                                          <div class="mom-input-group" id="sharepointLinkSection">
+                                                <input type="text" id="sharepointLink" placeholder="Paste link here..." />
+                                          </div>
+
+                                          <!-- File Upload -->
+                                          <div class="mom-input-group" id="fileUploadSection">
+                                                <div class="file-upload" id="dragDropArea">
+                                                      <p>Upload a video or file</p>
+                                                      <p style="font-size: 12px">(Supported: .mp4, .docx, .vtt)</p>
+                                                      <input type="file" id="fileUpload" accept=".mp4,.docx,.vtt" style="display: none" />
+                                                </div>
+                                                <div id="fileInfo" class="file-info hidden"></div>
+                                          </div>
+
+                                          <!-- Progress Container -->
+                                          <div id="progressContainer" class="progress-container hidden">
+                                                <div id="progressItems"></div>
+                                                <button id="goBackButton" class="go-back-button hidden">Go Back</button>
+                                          </div>
+
+                                          <button class="submit-button" type="button" id="sendButton">Generate Meeting Notes</button>
+                                    </div>
+                                    <div class="mom-slides-container" id="momSlidesContainer">
+                                          <div class="slideshow-container">
+                                                <div class="slide">
+                                                      <img src="/static/images/mom/MOM_1.png" alt="Slide 1" />
+                                                      <div class="caption">Record the meeting</div>
+                                                </div>
+                                                <div class="slide">
+                                                      <img src="/static/images/mom/MOM_2.png" alt="Slide 2" />
+                                                      <div class="caption">Open the recording in browser</div>
+                                                </div>
+                                                <div class="slide">
+                                                      <img src="/static/images/mom/MOM_3.png" alt="Slide 3" />
+                                                      <div class="caption">Copy the link and paste here</div>
+                                                </div>
+                                          </div>
+
+                                          <div class="dots">
+                                                <span class="dot" onclick="goToSlide(0)"></span>
+                                                <span class="dot" onclick="goToSlide(1)"></span>
+                                                <span class="dot" onclick="goToSlide(2)"></span>
+                                          </div>
+                                    </div>
+                                    <div class="parts-container" id="partsContainer"></div>
+                              </div>
+                              <div class="notes-container">
+                                    <div class="notes-left" id="notesLeft"></div>
+                                    <div class="notes-right" id="notesRight"></div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+      </body>
+      {% include 'settings.html' %}
+      <script src="/static/js/mom/mom_script.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+      <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+</html>

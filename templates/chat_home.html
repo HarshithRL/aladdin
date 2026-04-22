@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{theme}}">
+      <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Aladdin</title>
+
+
+            <!-- Link to CSS file -->
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_styles.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/markdown_styles.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/template_styles.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/model_dropdown_styles.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/file_upload_styles.css') }}" />
+
+            <!-- Highlight.js Theme (Choose from https://cdnjs.com/libraries/highlight.js) -->
+            <!-- Conditionally Load CSS Based on Theme -->
+            {% if theme == "light" %}
+            <link id="theme-stylesheet" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css" integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            {% elif theme == "dark" %}
+            <link id="theme-stylesheet" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" integrity="sha512-rO+olRTkcf304DQBxSWxln8JXCzTHlKnIdnMUwYvQa9/Jd4cQaNkItIUj6Z4nvW1dqK0SKXLbn9h4KwZTNtAyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            {% endif %}
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-highlight.css') }}" />
+
+      <style>
+            /* Hide attachment, templates, and agents controls */
+            .file-attach-container,
+            .template-container,
+            .tools-container {
+                  display: none !important;
+            }
+      </style>
+
+            <script type="text/javascript" src="https://js.live.net/v7.2/OneDrive.js"></script>
+
+            <!-- Highlight.js Library -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+            <!-- Initialize Highlight.js -->
+            <script>
+                  document.addEventListener("DOMContentLoaded", () => {
+                        hljs.highlightAll();
+                  });
+            </script>
+            <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+            <script>
+                  const renderer = new marked.Renderer();
+                  renderer.link = function (href, title, text) {
+                        href_link = href.href;
+                        title = href.text;
+                        text = href.text;
+                        const titleAttr = title ? ` title="${title}"` : "";
+                        return `<a href="${href_link}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
+                  };
+
+                  marked.setOptions({ renderer });
+            </script>
+      </head>
+      <body data-session-id="{{ session_id | default('') }}">
+            <audio id="player" style="display: none"></audio>
+            <div class="new-voice-overlay" id="voiceOverlay" style="display: none">
+                  <!-- Container for all animation types -->
+                  <div class="flex flex-col items-center">
+                        <!-- Listening (Single Pulsing Dot) -->
+                        <div id="listeningBars" class="animation-container hidden listening-animation">
+                              <div class="bar"></div>
+                              <div class="bar"></div>
+                              <div class="bar"></div>
+                              <div class="bar"></div>
+                        </div>
+
+                        <!-- Thinking (Sine Wave) Animation -->
+                        <div id="thinkingBars" class="animation-container hidden thinking-animation">
+                              <div class="bar"></div>
+                              <div class="bar"></div>
+                              <div class="bar"></div>
+                              <div class="bar"></div>
+                        </div>
+
+                        <!-- Talking (Audio Visualizer) Animation -->
+                        <div id="talkingBars" class="animation-container hidden talking-animation">
+                              <div class="bar"></div>
+                              <div class="bar"></div>
+                              <div class="bar"></div>
+                              <div class="bar"></div>
+                        </div>
+
+                        <!-- Status Text Display -->
+                        <div id="statusText" class="voice-mode-text"></div>
+                  </div>
+                  <div class="controls">
+                        <button id="cancelButton">
+                              <img src="/static/images/lucide_icons/x.svg" alt="Close" />
+                        </button>
+                  </div>
+            </div>
+            <script>
+                  // --- Web Audio API Variables ---
+                  function generateRandomBarHeights() {
+                        const heights = [];
+                        const baseMin = 10; // Minimum height for the smaller bars
+                        const baseMax = 20; // Maximum height for the smaller bars
+                        const tallMin = 40; // Minimum height for the taller bar
+                        const tallMax = 55; // Maximum height for the taller bar
+
+                        const tallBarIndex = Math.floor(Math.random() * 4); // Randomly pick one bar to be taller
+
+                        for (let i = 0; i < 4; i++) {
+                              if (i === tallBarIndex) {
+                                    heights.push(Math.random() * (tallMax - tallMin) + baseMin);
+                              } else {
+                                    // Generate heights for other bars that are close to each other
+                                    heights.push(Math.random() * (baseMax - baseMin) + baseMin);
+                              }
+                        }
+                        return heights;
+                  }
+
+                  async function initAudio(mp3AudioBlobUrl) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        analyser = audioContext.createAnalyser();
+                        analyser.fftSize = 256; // Fast Fourier Transform size for frequency data
+                        analyser.smoothingTimeConstant = 0.7; // Smooths out the visualization
+
+                        try {
+                              const response = await fetch(mp3AudioBlobUrl);
+                              if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                              }
+                              const arrayBuffer = await response.arrayBuffer();
+                              audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                              console.log("Audio loaded successfully.");
+                        } catch (error) {
+                              console.error("Error loading or decoding audio:", error);
+                              // Provide a more specific alert for the user
+                              alert("Failed to load audio. This is often due to an expired or invalid URL, or the audio server not allowing Cross-Origin Resource Sharing (CORS) from this page. Please ensure the URL is correct and publicly accessible with proper CORS headers.");
+                        }
+                  }
+
+                  function startAudioVisualization() {
+                        if (!audioContext || !audioBuffer) {
+                              alert("Audio not loaded. Please ensure a valid MP3 URL is provided and has finished loading.");
+                              return;
+                        }
+
+                        stopAudioVisualization(); // Stop any previous playback
+
+                        sourceNode = audioContext.createBufferSource();
+                        sourceNode.buffer = audioBuffer;
+                        sourceNode.connect(analyser);
+                        analyser.connect(audioContext.destination);
+
+                        // Set up the onended event listener
+                        sourceNode.onended = () => {
+                              console.log("Audio playback finished.");
+                              stopAudioVisualization(); // Stop visualization and reset bars
+                              startSpeechRecognition();
+                        };
+
+                        // Ensure audio context is in 'running' state for playback
+                        if (audioContext.state === "suspended") {
+                              audioContext
+                                    .resume()
+                                    .then(() => {
+                                          sourceNode.loop = false; // Do not loop the audio
+                                          sourceNode.start(0);
+                                          audioPlaying = true;
+                                          console.log("Audio playback started.");
+                                          resetTalkingBars(); // Set initial random heights when starting
+                                          visualizeAudio(); // Start the visualization loop
+                                    })
+                                    .catch((e) => {
+                                          console.error("Failed to resume AudioContext:", e);
+                                          alert("Failed to start audio playback. Please ensure browser allows autoplay or interact with the page first.");
+                                    });
+                        } else {
+                              sourceNode.loop = false; // Do not loop the audio
+                              sourceNode.start(0);
+                              audioPlaying = true;
+                              console.log("Audio playback started.");
+                              resetTalkingBars(); // Set initial random heights when starting
+                              visualizeAudio(); // Start the visualization loop
+                        }
+                  }
+
+                  function stopAudioVisualization() {
+                        if (sourceNode) {
+                              sourceNode.stop();
+                              sourceNode.disconnect();
+                              sourceNode = null;
+                        }
+                        if (animationFrameId) {
+                              cancelAnimationFrame(animationFrameId);
+                              animationFrameId = null;
+                        }
+                        audioPlaying = false;
+                        // When stopping, reset bars to a uniform default if not immediately switching to talking
+                        const talkingBars = document.querySelectorAll("#talkingBars .bar");
+                        talkingBars.forEach((bar) => {
+                              bar.style.height = "30px"; // A fixed default height for consistency
+                              bar.style.animation = "none";
+                        });
+                        console.log("Audio playback stopped.");
+                  }
+
+                  function resetTalkingBars() {
+                        currentBaseHeights = generateRandomBarHeights();
+                        const talkingBars = document.querySelectorAll("#talkingBars .bar");
+                        talkingBars.forEach((bar, index) => {
+                              bar.style.height = `${currentBaseHeights[index]}px`;
+                              bar.style.animation = "none"; // Ensure no CSS animations interfere
+                        });
+                        // console.log('Talking bars reshuffled. New base heights:', currentBaseHeights.map(h => h.toFixed(1)));
+                  }
+
+                  function visualizeAudio() {
+                        if (!analyser || !audioPlaying) {
+                              return; // Stop if not playing or analyser not ready
+                        }
+
+                        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                        analyser.getByteFrequencyData(dataArray); // Get frequency data
+
+                        const talkingBars = document.querySelectorAll("#talkingBars .bar");
+
+                        const barCount = talkingBars.length;
+                        const segmentSize = Math.floor(dataArray.length / barCount);
+
+                        // Calculate overall average for silence detection
+                        let currentOverallAverage = 0;
+                        for (let i = 0; i < dataArray.length; i++) {
+                              currentOverallAverage += dataArray[i];
+                        }
+                        currentOverallAverage /= dataArray.length;
+
+                        // Silence detection and reshuffle logic
+                        if (currentOverallAverage < silenceThreshold) {
+                              if (performance.now() - lastSoundTime > silenceDurationThreshold) {
+                                    resetTalkingBars(); // Reshuffle heights
+                                    lastSoundTime = performance.now(); // Reset timer after reshuffle
+                              }
+                        } else {
+                              lastSoundTime = performance.now(); // Reset timer if sound is detected
+                        }
+                        talkingBars.forEach((bar, i) => {
+                              // Calculate an average amplitude for each bar's segment
+                              let sum = 0;
+                              const startIdx = i;
+                              const endIdx = Math.min(startIdx + segmentSize, dataArray.length);
+                              const actualSegmentSize = endIdx - startIdx; // Handle cases where dataArray.length is not perfectly divisible
+                              if (actualSegmentSize > 0) {
+                                    for (let j = startIdx; j < endIdx; j++) {
+                                          sum += dataArray[j];
+                                    }
+                                    const average = sum / actualSegmentSize;
+
+                                    // Map the amplitude (0-255) to a desired bar height range, relative to its base height
+                                    const barBaseHeight = currentBaseHeights[i];
+                                    const amplitudeRatio = average / 60;
+                                    // Ensure the height increase doesn't push the bar beyond maxBarHeight
+                                    const heightIncrease = amplitudeRatio * barBaseHeight;
+                                    const mappedHeight = Math.min(barBaseHeight + heightIncrease, maxBarHeight);
+                                    bar.style.height = `${mappedHeight}px`;
+                                    // console.log(mappedHeight)
+                              } else {
+                                    // If segment size is 0, just set to base height
+                                    bar.style.height = `${currentBaseHeights[i]}px`;
+                              }
+                        });
+
+                        animationFrameId = requestAnimationFrame(visualizeAudio);
+                  }
+
+                  function showVoiceModeAnimation(animationId, status, mp3AudioBlobUrl = "") {
+                        const allAnimationContainers = document.querySelectorAll(".animation-container");
+                        // console.log(allAnimationContainers)
+                        allAnimationContainers.forEach((container) => {
+                              // console.log(container)
+                              // Hide all containers
+                              container.classList.add("hidden");
+                        });
+
+                        // Stop audio and reset talking bars if switching away from 'talking'
+                        if (animationId !== "talkingBars") {
+                              // stopAudioVisualization();
+                              // Re-apply CSS animations for thinking/listening bars if they were removed
+                              document.querySelectorAll(".thinking-animation .bar").forEach((bar) => {
+                                    bar.style.animation = "wave 2s infinite ease-in-out;";
+                              });
+                              document.querySelectorAll(".listening-animation .bar").forEach((bar) => {
+                                    bar.style.animation = "pulseScale 1.5s infinite ease-in-out";
+                              });
+                        } else {
+                              // If switching to 'talking', ensure no CSS animations interfere
+                              document.querySelectorAll(".talking-animation .bar").forEach((bar) => {
+                                    bar.style.animation = "none";
+                              });
+                        }
+
+                        // Show the selected container
+                        const selectedContainer = document.getElementById(animationId);
+                        if (selectedContainer) {
+                              selectedContainer.classList.remove("hidden");
+                        } else {
+                              console.error(`Animation container with ID '${animationId}' not found.`);
+                        }
+
+                        // Update the status text
+                        const statusTextElement = document.getElementById("statusText");
+                        if (statusTextElement) {
+                              statusTextElement.textContent = status;
+                        } else {
+                              console.error("Element with ID 'statusText' not found.");
+                        }
+
+                        // Start audio visualization if 'talkingBars' is selected
+                        if (animationId === "talkingBars") {
+                              initAudio(mp3AudioBlobUrl).then(() => {
+                                    startAudioVisualization();
+                              });
+                        }
+                  }
+            </script>
+            <div class="body-top">{% include 'header.html' %}</div>
+            <div class="body-bottom">
+                  {% include 'sidebar.html' %}
+                  <!-- Main Chat Container -->
+                  <div class="container" id="container">
+                        <div class="chat-header hide-scrollbar">
+                              <div class="model-select" onclick="toggleModelDropdown()">
+                                    <span class="model-name" data-actual-model="gpt-4o"
+                                          >OpenAI
+                                          <div class="model-name-second-line">GPT 4o</div></span
+                                    >
+                                    
+                              </div>
+                              <!-- The dropdown container -->
+                              <div class="model-dropdown">
+                                    <div class="model-option" data-tooltip-text="{{ model_details['gpt-4o'] }}" onclick="selectModel('gpt-4o')">
+                                          OpenAI
+                                          <div class="model-name-second-line">GPT 4o</div>
+                                    </div>
+                              </div>
+
+                              <!-- Separate tooltip element outside the dropdown -->
+                              <div id="llm-model-tooltip"></div>
+                              <div class="chat-container hide-scrollbar" id="chat-container"></div>
+                        </div>
+                        <div class="welcome-message" id="welcomeMessage">
+                              <div class="aladin-logo">
+                                <img src="/static/images/aladin.svg" alt="Aladdin" class="icon-svg">
+                            </div>
+                              <div class="welcome-message-text flowing-text" id="welcomeMessageText">{{greeting_message}}</div>
+                              <div class="welcome-message-text flowing-text" id="welcomeMessageText">How can I help you today?</div>
+                        </div>
+
+                        {% include 'relaychat/onedrive_file_upload_model.html' %} {% include 'relaychat/sharepoint_file_upload_model.html' %}
+
+                        <div class="bottom-part" id="bottomPart">
+                              <div class="input-container">
+                                    <div class="input-top">
+                                          <div id="sharepointfilePreview" class="file-preview hide-scrollbar" style="display: none"></div>
+                                          <div id="filePreview" class="file-preview hide-scrollbar" style="display: none"></div>
+                                          <div class="tool-preview-wrapper" style="display: none">
+                                                <div id="toolPreview" class="tool-preview" style="display: none" onclick="deactivateCurrentTool()">
+                                                      <div class="tool-preview-content">
+                                                            <img class="tool-preview-icon" src="" alt="" />
+                                                            <span class="tool-preview-text"></span>
+                                                            <img src="/static/images/lucide_icons/x.svg" alt="Close" />
+                                                      </div>
+                                                </div>
+                                          </div>
+                                          <div class="expand-input-wrapper">
+                                                <div class="expand-input-icon">
+                                                      <img src="/static/images/lucide_icons/maximize-2.svg" class="icon-svg" alt="Expand" />
+                                                </div>
+                                          </div>
+                                          <div id="userInput" class="input-box" contenteditable="true" data-placeholder="Ask Aladdin..." onkeypress="handleKeyPress(event)" onpaste="handlePaste(event)" oninput="handleInput()" style="height: 40px; overflow-y: hidden; transition: height 0.3s"></div>
+                                    </div>
+                                    <div class="input-bottom">
+                                          <!-- Options Left -->
+                                          <div class="options-left">
+                                                <!-- 1. Attach (First) -->
+                                                <div class="options-left-button file-attach-container">
+                                                      <div class="chat-action-button file-button" onclick="toggleFileDropdown(event)">
+                                                            <div class="button-icon-container icon-svg">
+                                                                  <img src="/static/images/lucide_icons/paperclip.svg" alt="Attach" />
+                                                            </div>
+                                                      </div>
+
+                                                      <!-- Custom dropdown -->
+                                                      <div class="file-dropdown" id="fileDropdown" style="display: none">
+                                                            <div class="dropdown-option" onclick="loadSharepointFilesModal()">
+                                                                  <div class="option-icon">
+                                                                        <img src="/static/images/folder-search-2.svg" alt="SharePoint Icon" />
+                                                                  </div>
+                                                                  <div class="option-text">Upload from SharePoint</div>
+                                                            </div>
+                                                            <div class="dropdown-option" onclick="loadOneDriveFilesModal()">
+                                                                  <div class="option-icon">
+                                                                        <img src="/static/images/cloud.svg" alt="OneDrive Icon" />
+                                                                  </div>
+                                                                  <div class="option-text">Upload from OneDrive</div>
+                                                            </div>
+
+                                                            <div class="dropdown-option" onclick="triggerLocalUpload()">
+                                                                  <div class="option-icon local-upload-icon">
+                                                                        <img src="/static/images/folder-closed.svg" alt="Local Upload Icon" />
+                                                                  </div>
+                                                                  <div class="option-text">Upload from Local</div>
+                                                            </div>
+                                                      </div>
+                                                      <!-- Hidden file input for local uploads -->
+                                                      <input type="file" id="localFileInput" multiple style="display: none" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx" onchange="handleLocalFiles(event)" />
+                                                </div>
+
+                                                <!-- 2. Templates (Second) -->
+                                                <div class="options-left-button template-container" id="templateContainer" data-tooltip="Your personal library for storing and managing prompts." onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">
+                                                      <div class="chat-action-button templates-button">
+                                                            <div class="button-icon-container icon-svg">
+                                                                  <img src="/static/images/lucide_icons/album.svg" alt="Attach" />
+                                                            </div>
+                                                            <div class="button-text-container">Templates</div>
+                                                      </div>
+                                                </div>
+
+                                                <!-- 3. Tools (Third) -->
+                                                <div class="options-left-button tools-container" id="toolsContainer">
+                                                      <div class="chat-action-button tools-button" onclick="toggleToolsDropdown(event)">
+                                                            <div class="button-icon-container icon-svg">
+                                                                  <img src="/static/images/lucide_icons/settings-2.svg" alt="Attach" />
+                                                            </div>
+                                                            <div class="button-text-container">Agents</div>
+                                                      </div>
+
+                                                      <!-- Tools dropdown -->
+                                                      <div class="tools-dropdown" id="toolsDropdown" style="display: none">
+                                                            <div class="dropdown-option" onclick="toggleTool('relayMicrosoftSearch')" data-tool="relayMicrosoftSearch">
+                                                                  <div class="relay-search-container" id="relaySearchButton">
+                                                                        <div class="relay-search-button">
+                                                                              <div class="option-icon relay-search-agent-color">
+                                                                                    <img src="/static/images/lucide_icons/search.svg" alt="Attach" />
+                                                                              </div>
+                                                                              <div class="option-text">Relay Microsoft 365 Agent</div>
+                                                                        </div>
+                                                                  </div>
+                                                            </div>
+                                                            <div class="dropdown-option" onclick="toggleTool('relayDevOpsSearch')" data-tool="relayDevOpsSearch">
+                                                                  <div class="relay-search-container" id="relaySearchButton">
+                                                                        <div class="relay-search-button">
+                                                                              <div class="option-icon relay-devops-agent-color">
+                                                                                    <img src="/static/images/lucide_icons/infinity.svg" alt="Attach" />
+                                                                              </div>
+                                                                              <div class="option-text">Relay DevOps Agent</div>
+                                                                        </div>
+                                                                  </div>
+                                                            </div>
+                                                            <div class="dropdown-option" onclick="toggleTool('generateImage')" data-tool="generateImage">
+                                                                  <div class="generate-image-container" id="generateImageButton">
+                                                                        <div class="option-icon generate-image-agent-color">
+                                                                              <img src="/static/images/lucide_icons/palette.svg" alt="Attach" />
+                                                                        </div>
+                                                                        <div class="option-text">Relay Image Generator Agent</div>
+                                                                  </div>
+                                                            </div>
+
+                                                            <div class="dropdown-option" onclick="toggleTool('relayDataAnalystAgent')" data-tool="relayDataAnalystAgent">
+                                                                  <div class="document-analyst-container" id="documentAnalystButton">
+                                                                        <div class="option-icon document-analyst-agent-color">
+                                                                              <img src="/static/images/lucide_icons/file-search-2.svg" alt="Attach" />
+                                                                        </div>
+                                                                        <div class="option-text">Relay Document Analyst Agent</div>
+                                                                  </div>
+                                                            </div>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <!-- Options Right -->
+                                          <div class="options-right">
+                                                <!-- Mic Button -->
+                                                <button id="micButton" class="mic-button" onclick="toggleVoiceInput()" data-tooltip="Dictate using voice" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">
+                                                      <div class="icon-svg" style="display: flex">
+                                                            <img id="micIcon" src="/static/images/lucide_icons/mic.svg" alt="Attach" />
+                                                      </div>
+                                                </button>
+
+                                                <!-- Send Button -->
+                                                <button id="sendButton" class="send-button" onclick="toggleVoiceOverlay()">
+                                                      <div style="display: flex">
+                                                            <img id="sendIcon" src="/static/images/lucide_icons/audio-lines.svg" alt="Attach" />
+                                                      </div>
+                                                </button>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+            {% include 'settings.html' %}
+            <!-- Excel library -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+            <!-- Link to JavaScript file -->
+            <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/relaychat/chat_script.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/relaychat/local_file_upload.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/relaychat/onedrive_file_upload.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/relaychat/drag_drop_script.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/relaychat/sharepoint_onedrive_files_script.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/relaychat/streaming_script.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/templates.js') }}"></script>
+
+            <!-- Add this before the closing body tag -->
+            <div class="drag-drop-overlay" id="dragDropOverlay">
+                  <div class="drag-drop-message">
+                        <img src="/static/images/lucide_icons/cloud-upload.svg" alt="Upload" />
+                        <p>Drop any file here to add it to conversation</p>
+                  </div>
+            </div>
+            <div id="globalTooltip" class="global-tooltip"></div>
+      </body>
+</html>

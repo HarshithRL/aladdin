@@ -1,0 +1,264 @@
+/* ==========================================================================
+   Popup & Modal Container
+   ========================================================================== */
+.settingsPopup {
+    display: none; /* Hidden by default */
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.settings-card {
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    width: 100%;
+    max-width: 900px;
+    height: 640px;
+    border-radius: 32px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.popup-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.close-button {
+    background: var(--bg-hover);
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    transition: var(--transition);
+}
+
+.close-button:hover {
+    background-color: #fce8e6;
+    color: #c5221f;
+}
+
+/* ==========================================================================
+   Navigation Tabs
+   ========================================================================== */
+.popup-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.tabs {
+    width: 240px;
+    background-color: var(--bg-secondary);
+    padding: 24px 12px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tab:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.tab.active {
+    background-color: rgba(239, 193, 47, 0.15); /* Gold highlight */
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.tab-icon {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+}
+
+.tab.active .tab-icon { opacity: 1; }
+
+/* ==========================================================================
+   Content Panels
+   ========================================================================== */
+.tab-content {
+    flex: 1;
+    padding: 32px 48px;
+    overflow-y: auto;
+}
+
+.content-panel {
+    display: none;
+}
+
+.content-panel.active {
+    display: block;
+}
+
+.setting-group {
+    margin-bottom: 40px;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+    gap: 24px;
+}
+
+.setting-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+/* Form Elements */
+select {
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 14px;
+    min-width: 200px;
+    outline: none;
+    transition: var(--transition);
+}
+
+select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(239, 193, 47, 0.1);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #dadce0;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+    background-color: var(--accent-color);
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(20px);
+    background-color: var(--primary-color);
+}
+
+/* Memories & Lists Styles */
+.memories-list {
+    margin-top: 20px;
+}
+
+.memory-item {
+    background-color: var(--bg-secondary);
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 12px;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.memory-value {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+.memory-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.button, .primary-button, .secondary-button, .danger-button {
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+}
+
+.primary-button {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+}
+
+.secondary-button {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.danger-button {
+    background-color: #fce8e6;
+    color: #c5221f;
+}
+
+.danger-button:hover { background-color: #fad2cf; }

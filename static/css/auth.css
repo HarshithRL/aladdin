@@ -1,0 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #0f1216;
+    background-image: url('https://images.unsplash.com/photo-1599818816824-cce865769731?q=80&w=2070&auto=format&fit=crop'); /* Placeholder mining/tunnel image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 0;
+}
+
+.auth-card {
+    position: relative;
+    z-index: 1;
+    background: rgba(23, 23, 23, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 60px 40px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    gap: 10px;
+}
+
+.auth-logo svg {
+    margin-right: 10px;
+    width: 40px;
+    height: 40px;
+}
+
+.auth-logo h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffd100; /* Diggibyte Yellow */
+    margin: 0;
+}
+
+.auth-description {
+    font-size: 14px;
+    color: #e0e0e0;
+    line-height: 1.5;
+    margin-bottom: 40px;
+}
+
+.auth-description strong {
+    color: #ffffff;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    background: #e6e6e6;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+}
+
+.input-group input::placeholder {
+    color: #666;
+}
+
+.input-icon {
+    padding: 0 16px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFC423; /* Darker yellow for icon area or just same bg? Image shows yellow icon box */
+    height: 50px;
+    width: 50px;
+    min-width: 50px;
+}
+.input-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Icon box styling based on image - actually the input is white/grey and icon is right aligned with yellow background? 
+   Refining: Image shows input field is light grey, and there is a yellow square on the right with the icon. */
+.input-wrapper {
+    display: flex;
+    width: 100%;
+    background-color: #ededed;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.input-wrapper input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 15px;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+}
+
+.input-wrapper .icon-box {
+    width: 50px;
+    background-color: #ffc82e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a1a;
+}
+
+.forgot-password {
+    display: block;
+    text-align: right;
+    color: #ffc82e;
+    font-size: 12px;
+    text-decoration: none;
+    margin-top: -10px;
+    margin-bottom: 30px;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #ffc82e;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: #e0b028;
+}
+
+.signup-link {
+    margin-top: 20px;
+    font-size: 13px;
+    color: #ccc;
+}
+.signup-link a {
+    color: #ffc82e;
+    text-decoration: none;
+}
+.signup-link a:hover {
+    text-decoration: underline;
+}
+.alert {
+    padding: 10px;
+    background: #ff4d4f;
+    color: white;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+.alert-success {
+    background: #52c41a;
+}

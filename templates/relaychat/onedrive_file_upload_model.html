@@ -1,0 +1,48 @@
+<div id="oneDriveFileUploadModal" class="popup-card-container sharepoint-modal" style="display: none">
+      <div class="card sharepoint-modal-content">
+            <div class="sharepoint-modal-header">
+                  <h2>Upload from OneDrive</h2>
+                  <span class="sharepoint-close-btn" id="closeOnedriveModalBtn">
+                        <img src="/static/images/lucide_icons/x.svg" class="icon-svg" alt="close Icon" />
+                  </span>
+            </div>
+            <div class="onedrive-body">
+                  <!-- Tabs -->
+                  <div class="sharepoint-tabs">
+                        <button class="onedrive-tab-button active" data-tab="shared-tab" id="sharedTabBtn" onclick="loadOneDriveFilesModal()">Home</button>
+                        <button class="onedrive-tab-button" data-tab="onedrive-tab" id="myTabBtn"  onclick="loadOneDriveMyFiles()">My files</button>
+                  </div>
+                  <div class="file-upload-model-contents">
+                        
+                        <div class="onedrive-tab-content active" id="OneDriveSharedFilesTab">
+                              <div class="file-upload-breadcrumbs">
+                              </div>
+                              <div class="file-upload-content">
+                                    <div class="loading">
+                                          <div class="file-icon-loading">
+                                                <img src="/static/images/lucide_icons/loader-circle.svg" class="icon-svg" alt="close Icon" />
+                                          </div>
+                                          Loading your files...
+                                    </div>
+                              </div>
+                        </div>
+
+                        <div class="onedrive-tab-content" id="OnedriveMyFilesTab">
+                              <div class="file-upload-breadcrumbs">
+                              </div>
+                              <div class="file-upload-content">
+                                    <div class="loading">
+                                          <div class="file-icon-loading">
+                                                <img src="/static/images/lucide_icons/loader-circle.svg" class="icon-svg" alt="close Icon" />
+                                          </div>
+                                          Loading your files...
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+
+            <div class="file-upload-model-action-btn-contianer" id="fileUploadModelActionBtnContianer">
+            </div>
+      </div>
+</div>

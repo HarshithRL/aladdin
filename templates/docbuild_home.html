@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{theme}}">
+      <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>AI Mate</title>
+
+            <!-- Link to CSS file -->
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/docbuild_styles.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/markdown_styles.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/preview_markdown_styles.css') }}" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/model_dropdown_styles.css') }}" />
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/template_styles.css') }}" />
+
+            <!-- Highlight.js Theme (Choose from https://cdnjs.com/libraries/highlight.js) -->
+            {% if theme == "light" %}
+            <link id="theme-stylesheet" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css" integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            {% elif theme == "dark" %}
+            <link id="theme-stylesheet" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" integrity="sha512-rO+olRTkcf304DQBxSWxln8JXCzTHlKnIdnMUwYvQa9/Jd4cQaNkItIUj6Z4nvW1dqK0SKXLbn9h4KwZTNtAyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            {% endif %}
+
+            <!-- Highlight.js Library -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+            <!-- Initialize Highlight.js -->
+            <script>
+                  document.addEventListener("DOMContentLoaded", () => {
+                        hljs.highlightAll();
+                  });
+            </script>
+      </head>
+      <body data-session-id="{{ session_id | default('') }}">
+            <div class="body-top">
+                  <!-- Header Section -->
+                  {% include 'header.html' %}
+            </div>
+            <div class="body-bottom">
+                  {% include 'sidebar.html' %}
+
+                  <!-- Main Container -->
+                  <div class="container">
+                        <!-- Bottom Half - Create Sections -->
+                        <div class="create-sections">
+                              <!-- left Side - Prompt Section -->
+                              <div class="prompt-section" id="promptSection">
+                                    <button id="addToChatBtn" class="add-to-chat-btn" style="display: none; position: absolute; z-index: 9999">Add to chat</button>
+
+                                    <!-- Content Container -->
+                                    <div id="toolbar">
+                                          <div class="toggle-left-section">
+                                                <button class="toolbar-btn" id="undoBtn" title="Undo" data-tooltip="Undo" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">
+                                                      <img src="/static/images/lucide_icons/undo-2.svg" alt="Undo" class="icon-svg" />
+                                                </button>
+                                                <button class="toolbar-btn" id="redoBtn" title="Redo" data-tooltip="Redo" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">
+                                                      <img src="/static/images/lucide_icons/redo-2.svg" alt="Redo" class="icon-svg" />
+                                                </button>
+                                                <button class="toolbar-btn" id="copyBtn" title="Copy" data-tooltip="Copy" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">
+                                                      <img src="/static/images/lucide_icons/copy.svg" alt="Copy" class="icon-svg" />
+                                                </button>
+                                                <button class="toolbar-btn" id="downloadBtn" title="Download as Word" data-tooltip="Download" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">
+                                                      <img src="/static/images/lucide_icons/download.svg" alt="Download" class="icon-svg" />
+                                                </button>
+                                                <button class="toolbar-btn" id="saveBtn" title="Save" data-tooltip="Save" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">
+                                                      <img src="/static/images/lucide_icons/save.svg" alt="Save" class="icon-svg" />
+                                                </button>
+                                          </div>
+                                          <div class="toggle-right-section">
+                                                <div class="toggle-container">
+                                                      <label class="toggle-option">
+                                                            <input type="radio" name="toggle" id="archived" checked/>
+                                                            <span>Edit</span>
+                                                      </label>
+                                                      <label class="toggle-option">
+                                                            <input type="radio" name="toggle" id="active"  />
+                                                            <span>Preview</span>
+                                                      </label>
+                                                      
+                                                </div>
+                                          </div>
+                                    </div>
+                                    <div id="editor" class="editor-container"></div>
+                                    <div id="preview" style="display: none" class="message preview-container"></div>
+                                    <!-- <div id="contentContainer" class="content-container markdown-body message"></div> -->
+                              </div>
+                              <div class="resizer" id="resizer">
+                                    <div class="resizer-button"></div>
+                              </div>
+                              <!-- right Side - DocBuild Cards -->
+                              <div class="cards-section" id="cardsSection">
+                                    <div class="chat-header hide-scrollbar">
+                                          <div class="model-select" onclick="toggleModelDropdown()">
+                                                <span class="model-name" data-actual-model="gpt-4o"
+                                                      >OpenAI
+                                                      <div class="model-name-second-line">GPT 4o</div></span
+                                                >
+                                                <img src="{{ url_for('static', filename='images/dropdown-arrow.svg') }}" class="dropdown-arrow icon-svg" alt="Dropdown Arrow" />
+                                          </div>
+                                          <!-- The dropdown container -->
+                                          <div class="model-dropdown">
+                                                <div class="model-option" data-tooltip-text="{{ model_details['gpt-4o'] }}" onclick="selectModel('gpt-4o')">
+                                                      OpenAI
+                                                      <div class="model-name-second-line">GPT 4o</div>
+                                                </div>
+                                                <div class="model-option" data-tooltip-text="{{ model_details['gpt-4.1'] }}" onclick="selectModel('gpt-4.1')">
+                                                      OpenAI
+                                                      <div class="model-name-second-line">GPT 4.1</div>
+                                                </div>
+                                                <div class="model-option" data-tooltip-text="{{ model_details['o1'] }}" onclick="selectModel('o1')">
+                                                      OpenAI
+                                                      <div class="model-name-second-line">GPT o1</div>
+                                                </div>
+                                                <div class="model-option" data-tooltip-text="{{ model_details['gpt-o3-mini'] }}" onclick="selectModel('o3-mini')">
+                                                      OpenAI
+                                                      <div class="model-name-second-line">GPT o3-mini</div>
+                                                </div>
+                                          </div>
+
+                                          <!-- Separate tooltip element outside the dropdown -->
+                                          <div id="llm-model-tooltip"></div>
+                                    </div>
+                                    <div class="resizer" id="resizer"></div>
+                                    <div class="welcome-message" id="welcomeMessage">
+                                          <div class="welcome-message-text flowing-text" id="welcomeMessageText">{{greeting_message}}</div>
+                                          <div class="welcome-message-text flowing-text" id="welcomeMessageText">How can I help you today?</div>
+                                    </div>
+                                    <div class="chatbot-container chat-container hide-scrollbar" id="chat-container"></div>
+                                    <!-- Bottom part with input (moved from prompt section) -->
+                                    <div class="bottom-part" id="cardsBottomPart">
+                                          <div class="input-container">
+                                                <div class="input-top">
+                                                      <div id="chatSelectionsContainer"></div>
+                                                      <div id="sharepointfilePreview" class="file-preview hide-scrollbar" style="display: none"></div>
+                                                      <div id="filePreview" class="file-preview hide-scrollbar" style="display: none"></div>
+                                                      <div id="userInput" class="input-box" contenteditable="true" placeholder="Describe the document you want to generate..." onkeypress="handleKeyPress(event)" onpaste="handlePaste(event)" style="height: 26px; overflow-y: hidden; transition: height 0.3s"></div>
+                                                </div>
+                                                <div class="input-bottom">
+                                                      <!-- Options Left -->
+                                                      <div class="options-left">
+                                                            <div class="options-left">
+                                                                  <div class="options-left-button template-container" id="templateContainer">
+                                                                        <div class="chat-action-button templates-button">
+                                                                              <div class="button-icon-container icon-svg">
+                                                                                    <img src="/static/images/templates-icon.svg" alt="Templates" />
+                                                                              </div>
+                                                                              <div class="button-text-container">Templates</div>
+                                                                        </div>
+                                                                  </div>
+                                                            </div>
+                                                      </div>
+
+                                                      <!-- Options Right -->
+                                                      <div class="options-right">
+                                                            <button class="send-button" id="generateButton" onclick="handleGenerate()">
+                                                                  <img src="{{ url_for('static', filename='images/arrow-right.svg') }}" alt="Send" class="send-icon" id="sendIcon" />
+                                                            </button>
+                                                      </div>
+                                                </div>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+            <div id="globalTooltip" class="global-tooltip"></div>
+      </body>
+      {% include 'settings.html' %}
+      <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+      <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+      <script src="{{ url_for('static', filename='js/docbuild/docbuild_script.js') }}"></script>
+
+      <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/templates.js') }}"></script>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" class="hide-scrollbar" data-theme="{{theme}}" id="htmlRoot">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home_styles.css') }}" />
+    <title>AI Mate</title>
+</head>
+
+<body>
+    <!-- Advanced Decorative Background Elements -->
+    <div class="bg-blooms">
+        <div class="bloom bloom-1"></div>
+        <div class="bloom bloom-2"></div>
+    </div>
+
+    <div class="homepage-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <div class="logo">
+                    <div class="logo-wrapper"
+                        style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                    </div>
+                </div>
+                <div class="nav-icons">
+                    <div class="nav-icon active">
+                        <img src="/static/images/lucide_icons/house.svg" alt="Home" class="icon-svg">
+                    </div>
+                    <!-- <div class="nav-icon">
+                        <img src="/static/images/lucide_icons/folder.svg" alt="Folder" class="icon-svg">
+                    </div>
+                    <div class="nav-icon">
+                        <img src="/static/images/lucide_icons/arrow-right.svg" alt="Send" class="icon-svg">
+                    </div> -->
+                    <div class="nav-icon">
+                        <img src="/static/images/lucide_icons/plus.svg" alt="Plus" class="icon-svg">
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-bottom">
+                <!-- <div class="nav-icon">
+                    <img src="/static/images/lucide_icons/settings.svg" alt="Settings" class="icon-svg">
+                </div> -->
+                <div class="nav-icon">
+                    <img src="/static/images/Avatar.svg" alt="User" class="icon-svg">
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Hero Section: Modern Workflows -->
+            <div class="greeting-section">
+                <div class="section-tagline">Workspace Overview</div>
+                <h1 class="greeting-text">Modern <span>Workflows.</span></h1>
+                <p class="greeting-description">Integrated intelligence tools designed for professional clarity and speed.</p>
+            </div>
+
+            <!-- Feature Cards Section -->
+            <div class="feature-cards-section">
+                <div class="section-header">
+                    <h2 class="section-title">Intelligence Suite</h2>
+                    <span class="status-badge">Active Sync</span>
+                </div>
+                <div class="feature-cards-grid" id="appsGrid">
+                    <!-- Feature cards populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Recent Sessions Section (Optional/Cleanup) -->
+            <div class="recent-sessions-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent History</h2>
+                </div>
+                <div class="sessions-grid">
+                    <!-- Session items populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+{% include 'settings.html' %}
+
+</html>

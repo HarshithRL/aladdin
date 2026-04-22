@@ -1,0 +1,62 @@
+<script>
+      document.addEventListener("DOMContentLoaded", function () {
+            const profileButton = document.getElementById("profileButton");
+            const profileMenu = document.getElementById("profileMenu");
+
+            profileButton.addEventListener("click", function () {
+                  profileMenu.classList.toggle("active");
+            });
+
+            document.addEventListener("click", function (event) {
+                  if (!profileButton.contains(event.target) && !profileMenu.contains(event.target)) {
+                        profileMenu.classList.remove("active");
+                  }
+            });
+      });
+</script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}" />
+<header class="ms-header">
+      <div class="ms-header-right">
+
+            
+            
+
+            <div class="ms-profile" id="profileButton">
+                  <div class="ms-avatar">
+                        {% if user.profile_picture_path != '[NOT AVAILABLE]' %}
+
+                        {% else %}
+                        <div class="ms-avatar-placeholder">
+                              {{ user.name[0] }}
+                        </div>
+                        {% endif %}
+                  </div>
+                  
+            </div>
+            <div class="ms-profile-menu" id="profileMenu">
+                  <div class="ms-menu-item ms-profile-info">
+                        <div class="ms-user-details">
+                              <div class="ms-username">Admin</div>
+                              <div class="ms-email">{{ user.email }}</div>
+                        </div>
+                  </div>
+
+                  <div class="ms-menu-item settings-button">
+                        <img src="/static/images/lucide_icons/settings.svg" class="icon-svg" />
+                        <span>Settings</span>
+                  </div>
+                  
+                  {% if user.is_admin %}
+                  <div class="ms-menu-item ms-admin-portal-button" onclick="window.location.href='{{ url_for('admin.admin_home') }}'">
+                        <img src="/static/images/shield-user.svg" class="shield-user-icon icon-svg" />
+                        <span>Admin Portal</span>
+                  </div>
+                  {% endif %}
+                  
+                  <div class="ms-menu-item ms-logout" onclick="window.location.href='{{ url_for('logout') }}'">
+                        <img src="/static/images/lucide_icons/log-out.svg" class="icon-svg" />
+                        <span>Sign out</span>
+                  </div>
+            </div>
+      </div>
+</header>

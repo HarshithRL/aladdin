@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_styles.css') }}">
+    <title>Relay</title>
+    <link rel="icon" type="image/png" href="static/images/fav.png">
+</head>
+<body>
+    <div class="error-message" id="errorMessage"><span class="close-btn" onclick="hideErrorMessage()">X&times;</span></div>
+    <div class="left-section">
+        <div class="left-title">The smarter way <strong>to get things done.</strong></div>
+        <div class="left-body">
+            Turn ideas into action with AI - find solutions faster, simplify complex processes, and discover new ways to work smarter every day.
+        </div>
+    </div>
+    <div class="right-section">
+        <div class="auth-form-container">
+            <div class="container">
+                <h2>Relay</h2>
+                <p class="subtext">Sign in using Microsoft Entra ID Single Sign On. <a href="https://learn.microsoft.com/en-us/entra/identity/">Learn more</a></p>
+                <a href="{{ auth_uri }}">
+                    <button class="signin-btn">
+                        Log in with Diggibyte
+                    </button>
+                </a>
+                <p class="admin-text">Contact your site administrator to request access.</p>
+                
+            </div>
+            <div class="left-header">
+                <img src="/static/images/images.png" class="project-title-icon"/>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

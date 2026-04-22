@@ -1,0 +1,139 @@
+:root {
+    /* --- Precise Reference-Based Design System --- */
+    
+    /* Colors from Image */
+    --primary-color: #0f172a; /* Deep Charcoal/Blue */
+    --accent-color: #efc12f;  /* Signature Gold/Yellow */
+    --accent-hover: #dfb32a;
+    
+    /* Surfaces */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-hover: #f1f5f9;
+    
+    /* Text */
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    
+    /* Functional */
+    --border-color: #f1f5f9;
+    --border-hover: #e2e8f0;
+    
+    /* Spacing & Geometry */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 32px; /* Very rounded cards */
+    --radius-pill: 100px;
+    
+    /* Elevation */
+    --shadow-1: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-2: 0 10px 15px -3px rgb(0 0 0 / 0.04), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+    --shadow-3: 0 20px 25px -5px rgb(0 0 0 / 0.03), 0 8px 10px -6px rgb(0 0 0 / 0.03);
+    
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+/* Modern Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Typography Helpers (matching Poppins classes used in HTML) */
+.poppins-semibold { font-weight: 600; }
+.poppins-medium { font-weight: 500; }
+.poppins-regular { font-weight: 400; }
+
+/* Reusable Components with Improved Styling */
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    transition: var(--transition);
+}
+
+.card-with-hover:hover {
+    box-shadow: var(--shadow-2);
+    border-color: transparent;
+    transform: translateY(-2px);
+}
+
+.button-template {
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: var(--radius-pill);
+    padding: 12px 24px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    letter-spacing: 0.25px;
+}
+
+.button-template:hover {
+    box-shadow: var(--shadow-1);
+    filter: brightness(1.1);
+}
+
+.button-template:active {
+    transform: scale(0.98);
+}
+
+/* Utility Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in { animation: fadeIn 0.3s ease; }
+.fade-in-up { animation: fadeInUp 0.4s ease; }

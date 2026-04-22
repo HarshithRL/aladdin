@@ -1,0 +1,44 @@
+.a/
+.env
+config/config.yaml
+# Ignore all virtual environments recursively
+**/env/
+**/venv/
+**/.venv/
+flask_session/
+log/
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest cache
+.pytest_cache/
+
+# OS files
+.DS_Store
+
+# IDE / tooling
+.claude/
+.vscode/
+.idea/
+.databricks/
+# Sessions
+flask_session/
+
+# Env files
+.env
+.env.*
+
+# Your custom env folders
+**/.ds/
+
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.ds
+.env.*
+
